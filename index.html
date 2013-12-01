@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="resources/images/via-app-icon.png"/>
+
+    <link rel="apple-touch-startup-image" href="resources/images/via-app-startup.png" />
+
+    	<title>Via</title>
+    	
+    	<style>
+    	
+    		html {
+	    		
+	    		/*background-color: #77CE7D;*/ 
+	    		background-color: #CF7881;
+	    		
+    		}
+    	
+    		body {
+	
+	    		font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	    		font-size: 100%;
+	    		
+	    		background-color: #E3E3E3;
+		    	text-align: center;
+		    	
+		    	width: 100%;
+		    	
+		    	padding: 0;
+		    	margin: 0;
+		    			    
+		    	position: absolute;
+		    	top: 0;
+		    	right: 0;
+		    	bottom: 0;
+		    	left: 0;		    
+		    			    	
+		    	border-bottom: 0.0625em solid #D0D0D0;
+		    	
+	    	}
+
+	    	
+	    	img {
+		    	
+		    	width: 100%;
+		    	margin: 0;
+		    	
+	    	}
+	    	
+	    	h1 {
+		    	
+		    	width: 25%;
+		    	margin: 2em auto 2em auto;
+		    	line-height: 0;
+		    	
+	    	}
+	    	
+	    	form {
+		    	
+		    	width: 100%;
+		    	
+	    	}
+	    	
+	    	form input {
+		    	
+		    	-webkit-appearance: none;
+		    	appearance: none;
+		    	border-radius: 0;
+		    	
+	    	}
+	    	
+	    	form input[type=text] {
+		    	
+		    	width: 80%;
+		    	
+		    	font-weight: 700;
+		    	
+		    	border-color: #D0D0D0;
+		    	border-width: 1px;
+		    	
+		    	color: #D0D0D0;
+		    	font-size: 1em;
+		    	
+		    	padding: 1em 1em 1em 1em;
+		    	margin: 0 0 0 0;
+		    	
+	    	}
+	    	
+	    	form input[type=text].active {
+	    	
+	    		color: #333333;
+	    		
+	    	}
+	    	
+	    	form input[type=button] {
+		    	
+		    	/*background-color: #D0D0D0;
+		    	border-color: #D0D0D0;
+		    	
+		    	color: #E3E3E3;
+		    	font-size: 1em;*/
+		    	
+		    	width: 3em;
+		    	font-size: 1em;
+		    	
+		    	border-width: 0;
+		    	
+		    	padding: 1em 1em 1em 1em;
+		    	margin: 0 0 0 -3.4em;
+		    	
+		    	background-color: #FFFFFF;
+		    	
+		    	background-image: url('resources/images/search-icon-off.png');
+		    	background-repeat: no-repeat;
+		    	background-position: center center;
+		    	
+	    	}
+	    	
+	    	form input[type=button].available {
+		    	
+		    	/* background-color: #333333;
+		    	border-color: #333333;
+		    	
+		    	color: #E3E3E3;*/
+		    	
+		    	background-image: url('resources/images/search-icon-on.png');
+		    			    	
+	    	}
+	    	
+	    	div#info {
+		    	
+		    	color: #333333;
+
+	    	}
+	    	
+	    	div#info h2 {
+	    	
+	    		width: 75%;
+	    	
+	    		font-size: 1em;
+	    		margin: 0 auto 0 auto;
+	    	
+	    	}
+	    	
+	    	div#info h2 a {
+	    	
+	    		color: #333333;
+	    		text-decoration: none;
+	    		border-bottom: 1px dotted #333333;
+	    	
+	    	}
+	    	
+	    	div#info p {
+	    	
+	    		font-size: 0.75em;
+		    	margin: 4em auto 0.2em auto;
+		    	
+	    	}
+	    	
+	    	div#info:first-child {
+		    	
+	    		font-weight: 900;
+		    	
+	    	}
+	    	
+	    	div#info p#notice {
+	    	
+	    		color: #808080;
+		    	
+		    	font-weight: 500;
+		    			    	
+		    	width: 65%;
+		    	
+		    	position: absolute;
+		    	bottom: 1em;
+		    	left:0;
+		    	right: 0;
+
+	    	}
+    	
+    	</style>
+		
+		<script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+		
+		<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+		
+		<script type="text/javascript">
+		
+		  function logEvent(event) {
+      console.log(event.type);
+  }
+ 
+  window.applicationCache.addEventListener('checking',logEvent,false);
+  window.applicationCache.addEventListener('noupdate',logEvent,false);
+  window.applicationCache.addEventListener('downloading',logEvent,false);
+  window.applicationCache.addEventListener('cached',logEvent,false);
+  window.applicationCache.addEventListener('updateready',logEvent,false);
+  window.applicationCache.addEventListener('obsolete',logEvent,false);
+  window.applicationCache.addEventListener('error',logEvent,false);
+
+			
+			var phrase = "Where do you want to go?";
+			var phraseChange = "Going somewhere else?";
+			
+			var connectedStatus = new Boolean();
+			var connectionChange;
+			var frequency;
+			
+			var currentLatitude;
+			var currentLongitude;
+			var destination = localStorage["destination"];
+			var destinationLatitude = localStorage["destinationLatitude"];
+			var destinationLongitude = localStorage["destinationLongitude"];
+			
+			$(document).ready(function() {
+			
+				if( destination != null && destinationLatitude != null && destinationLongitude != null ) {
+				
+					$("input[name=destination]").val(phraseChange);
+				
+					showDestination(destinationLatitude, destinationLongitude, destination);
+					showConnectionStatus();
+				
+				}
+				else {
+					
+					$("input[name=destination]").val(phrase);
+					
+				}
+			
+				phrase = $('input[name="destination"]').val();
+				
+				//
+				//	FORM MANIPULATION
+				//
+				
+				$(window).keydown( function(event) {
+				
+					// if enter pressed
+					if(event.keyCode == 13){
+																
+						setDestination();
+						$('input[name="destination"]').blur();
+						
+						event.preventDefault();
+						return false;
+								
+					}
+				
+				});
+				
+				$('input[name="destination"]').focus( function() {
+					
+					if( $(this).val() == phrase ) {
+						$(this).val("");
+					}
+					
+					$(this).keyup( function(event) {
+					
+						if( $(this).val() != 0 ) {
+							$('input[type="button"]').addClass("available");
+						}
+						else {
+							$('input[type="button"]').removeClass("available");
+						}
+						
+					});
+					
+					$(this).addClass("active");
+					
+				});
+				
+				$('input[name="destination"]').blur( function() {
+					
+					if( $(this).val() == 0 ) {
+						$(this).val(phrase);
+						$(this).removeClass("active");
+					}					
+				
+				});
+				
+				$('input[type="button"]').click( function(event) {
+					setDestination();
+				});
+
+			});
+			
+			// prevent scrolling and _something I can't remember_ effect
+			document.ontouchmove = function(event){
+				event.preventDefault();
+			}
+			
+			function showConnectionStatus() {
+											
+				// if change in connection occured or location changed
+				if( connectionChange != connectedStatus || $("p#notice").length == 0 ) {
+					
+					// if connection changed or both changed
+					if( connectionChange != connectedStatus || (connectionChange != connectedStatus && $("p#notice").length == 0) ) {
+						$("p#notice").hide().fadeIn(1000);
+					}
+					// if location changed or both changed
+					if( $("p#notice").length == 0 || (connectionChange != connectedStatus && $("p#notice").length == 0) ) {
+						$("#info").append('<p id="notice"></p>');
+					}
+
+					connectionChange = connectedStatus;
+
+														
+					// if connected
+					if (connectedStatus == true) {
+					
+						//alert("connected");
+						
+						$("p#notice").text('Navigating');
+						
+						//$("#info").css('margin-top','-12em');
+						//$("form").css('margin-top','12em');
+						
+						$("html").css('background-color', '#77CE7D');
+						
+						$("body").animate({
+							bottom: '2em'					
+						}, 500);
+						
+						// set communication attempts to every 0.1s
+						frequency = 100;
+															
+					}
+					// if disconnected
+					else {
+					
+						//alert("disconnected");
+						
+						$("p#notice").text('Start navigation by approaching Via, keeping your phone nearby.');
+											
+						//$("#info").css('margin-top','0');
+						//$("form").css('margin-top','0');
+	
+						$("html").css('background-color', '#CF7881');
+										
+						$("body").animate({
+							bottom: '1em'					
+						}, 500);
+	
+						// set communication attempts to every 10s
+						frequency = 10000;
+						
+					}
+					
+	
+				}
+												
+				navigate();
+			}
+			
+			function getCurrentLocation() {
+				
+				// check if current location is available
+				if (navigator.geolocation) {
+				
+					// get current location
+					navigator.geolocation.getCurrentPosition(function (position) {
+					
+						// set current location
+						currentLatitude = position.coords.latitude;
+						currentLongitude = position.coords.longitude;
+					});
+				}
+				else {
+					
+					alert("Current location not available,\n please try again.")
+					return false;
+				}
+			}
+		
+			function setDestination() {
+				
+				// get input value
+				var destination = $("input[name=destination]").val();
+				
+				// if destination was set
+				if( destination.length != 0 && destination != phrase ) {
+					
+					// enable Google Geocoder		
+					var geocoder = new google.maps.Geocoder();
+					
+					// if it sets up
+					if (geocoder) {
+					
+						// query
+						geocoder.geocode({ 'address': destination }, function (results, status) {
+						
+							// if successful
+							if (status == google.maps.GeocoderStatus.OK) {
+								
+								// set destination
+								destinationLatitude = results[0].geometry.location.lat();
+								destinationLongitude = results[0].geometry.location.lng();
+								destination = results[0].formatted_address;
+								
+								// save destination
+								localStorage["destinationLatitude"] = destinationLatitude;
+								localStorage["destinationLongitude"] = destinationLongitude;
+								localStorage["destination"] = destination;
+								
+								// print destination details
+								showDestination(destinationLatitude, destinationLongitude, destination);
+								
+								// reset input field
+								$("input[name=destination]").val(phraseChange);
+								$('input[name="destination"]').removeClass("active");
+								$('input[type="button"]').removeClass("available");						
+							
+								// attempt to start navigation
+								showConnectionStatus();
+								
+							}
+							// if not successful
+							else {
+								
+								// alert an error
+								alert("Sorry, can't find destination.\nPlease try again.");
+								return false;
+							
+							}
+						});
+					}    
+				}
+				// if no destination was set
+				else {
+					
+					$("input[name=destination]").focus();
+					
+				}
+				
+			}
+			
+			
+			function navigate() {
+			
+				// after a given period
+				setTimeout( function() {
+									
+					// if destination coordinates were set
+					if (destinationLatitude.length != 0 && destinationLongitude.length != 0) {
+					
+						// mark as disconnected				
+						connectedStatus = true;
+						
+						// GET CURRENT LOCATION
+						getCurrentLocation();
+						
+						// TRANSFER DATA
+						/*
+						// collect data into a string
+						collectedData = currentLatitude+","+currentLongitude+","+destinationLatitude+","+destinationLongitude;
+					
+						// convert collected data to bytes
+						var bytes = [];	
+						for (var i=0; i<collectedData.length; ++i) {
+							bytes.push(collectedData.charCodeAt(i));
+						}*/
+						
+						// post to Via
+						/*$.post("http://172.20.10.5/data", null, function() {
+							
+							// if successful, mark connected
+							connectedStatus = true;
+							
+							alert("Success!");
+							
+						}, "text");	*/			
+						
+						
+						// SET CONNECTION STATUS
+						showConnectionStatus();
+					
+					}
+					
+				}, frequency);			
+			}
+			
+			function showDestination(destinationLatitude, destinationLongitude, destination) {
+				
+				$("#info").empty();
+				$("#info").append('<p>Destination:</p>');
+				$("#info").append('<h2><a href="http://maps.apple.com/maps?q='+destinationLatitude+', '+destinationLongitude+'">'+destination+'</a></h2>');
+				
+			}
+				
+		</script>
+		
+</head>
+
+<body>
+
+	<h1><img src="resources/images/via_logo.png" alt="Via"></h1>
+
+	<form>
+	
+		<input type="text" name="destination">
+			
+		<input type="button" name="submit">
+		
+	</form>
+	
+	<div id="info">
+	
+		<p id="notice">Navigation starts automatically once destination is set and you get close to Via with your phone.</p>
+	
+	</div>
+
+</body>
+</html>
